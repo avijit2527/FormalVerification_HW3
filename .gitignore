@@ -1,0 +1,10 @@
+*~
+.metals/*
+.metals
+project/*
+target/*
+.idea/*
+logs/src_*
+logs/run_*
+*.swp
+lib
