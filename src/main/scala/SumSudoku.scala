@@ -1,6 +1,7 @@
 package sumsudoku
 
 import com.microsoft.z3
+import scala.collection.mutable.MutableList
 
 /** In the notation (n,m) sum-sudoku puzzle:
   * - n is the gridSize variable,
@@ -47,15 +48,72 @@ object Solver
    *  You must throw an IllegalArgumentException if the puzzle has no
    *  solution.
    */
+  
+  
+
+
+
   def solve(puzzle : Puzzle) : Puzzle = {
+    val ctx = new z3.Context()
+    val S = ctx.mkSolver()
+    //println(puzzle.gridSize)
+    val allVariables : MutableList[z3.ArithExpr] = MutableList.empty
+    val maxValue = ctx.mkInt(puzzle.maxValue)
+
+    //row constraints
+    for(i <- 1 to puzzle.gridSize){
+      var tempRowConstraint : z3.ArithExpr = ctx.mkInt(0)
+      var rowVars : MutableList[z3.IntExpr] = MutableList.empty
+      for(j <- 1 to puzzle.gridSize){
+        val tempVar = ctx.mkIntConst("x" + i.toString() + j.toString())
+        rowVars += tempVar
+        S.add(ctx.mkLe(tempVar, maxValue))
+        S.add(ctx.mkLe(ctx.mkInt(1), tempVar))
+        allVariables += tempVar
+        tempRowConstraint = ctx.mkAdd(tempRowConstraint, tempVar)
+      }
+
+      S.add(ctx.mkDistinct(rowVars:_*))
+
+
+      S.add(ctx.mkEq(tempRowConstraint, ctx.mkInt(puzzle.rowSums(i-1))))
+    }
+
+    //column constraints
+    for(j <- 1 to puzzle.gridSize){
+      var tempColumnConstraint : z3.ArithExpr = ctx.mkInt(0)
+      var colVars : MutableList[z3.IntExpr] = MutableList.empty
+      for(i <- 1 to puzzle.gridSize){
+        val tempVar = ctx.mkIntConst("x" + i.toString() + j.toString())
+        tempColumnConstraint = ctx.mkAdd(tempColumnConstraint, tempVar)
+      }
+      
+      S.add(ctx.mkDistinct(colVars:_*))
+      S.add(ctx.mkEq(tempColumnConstraint, ctx.mkInt(puzzle.colSums(j-1))))
+    }
+    println(S.check())
+    val model = (S.getModel())
+
+
+    var retPuzzle : List[List[Int]] = List.empty
+
+
+
+    for(i <- 1 to puzzle.gridSize){
+      var tempList : List[Int] = List.empty 
+      for(j <- 1 to puzzle.gridSize){
+        tempList = tempList :+ model.eval(ctx.mkIntConst("x" + i.toString() + j.toString()),true).asInstanceOf[z3.IntNum].getInt
+      }
+      retPuzzle = retPuzzle :+ tempList
+    }
+
+    //println(retPuzzle)
+
     /* Hard-coding a solution just for testing. */
     Puzzle(
-        3, 5, // n and m
-        List(8, 10, 10), // row sum
-        List(8, 8, 12),  // col sum
-        List(
-          List(1, 4, 3),
-          List(5, 1, 4),
-          List(2, 3, 5)))
+        puzzle.gridSize, puzzle.maxValue, // n and m
+        puzzle.rowSums, // row sum
+        puzzle.colSums,  // col sum
+        retPuzzle)
   }
 }

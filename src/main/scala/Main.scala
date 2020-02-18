@@ -3,16 +3,16 @@ object Main
 {
   def testEquivalence() = {
     val x = twiddlebits.BV_VAR("x")
-    val num1 = twiddlebits.BV_NUM(1)
-    val p = (x)
+    val num1 = twiddlebits.BV_NUM(0)
+    val p = (x )
 
     val y = twiddlebits.BV_VAR("y")                
     val num2 = twiddlebits.BV_NUM(2)
-    val q = ((x  ^ y) ^ y)
+    val q = (y)
 
     println(p)
     val r = twiddlebits.ExprChecker.areEquivalent(p, q)
-    assert(r._1)
+    assert(!r._1)
 
     // Add more tests here.
     // Refer to this webpage for a whole bunch of interesting hacks
@@ -21,7 +21,7 @@ object Main
   }
 
   def main(args: Array[String]) {
-    println("Question 1 test(s).")
+    //println("Question 1 test(s).")
     testEquivalence()
 
     /*println("Question 2 test(s)")
