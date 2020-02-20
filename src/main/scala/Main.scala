@@ -22,14 +22,14 @@ object Main
 
   def main(args: Array[String]) {
     //println("Question 1 test(s).")
-    testEquivalence()
+    //testEquivalence()
 
-    /*println("Question 2 test(s)")
+    println("Question 2 test(s)")
 
-    val puzzle = sumsudoku.Puzzle(
+    /*val puzzle = sumsudoku.Puzzle(
       3, 5, // n and m
-      List(8, 10, 10), // row sum
-      List(8, 8, 12),  // col sum
+      List(6, 6, 12), // row sum
+      List(9, 6, 9),  // col sum
       List( // empty grid
         List(0, 0, 0),
         List(0, 0, 0),
@@ -39,14 +39,14 @@ object Main
     assert (solved.gridSize == puzzle.gridSize &&
       solved.maxValue == puzzle.maxValue &&
       solved.rowSums == puzzle.rowSums &&
-      solved.colSums == puzzle.colSums)
+      solved.colSums == puzzle.colSums)*/
 
     println("Question 2(b)")
     val p1 = sumsudoku.PuzzleCreator.create(3, 5, 1)
-    assert (p1.size == 1)
-    assert (p1.head.isValid)
+    //assert (p1.size == 1)
+    //assert (p1.head.isValid)
 
-    println("Question 2(c)")
+    /*println("Question 2(c)")
     val p2 = sumsudoku.PuzzleCreatorV2.create(3, 5, 1)
     assert (p1.size == 1)
     assert (p1.head.isValid)*/

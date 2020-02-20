@@ -57,7 +57,7 @@ object Solver
     val ctx = new z3.Context()
     val S = ctx.mkSolver()
     //println(puzzle.gridSize)
-    val allVariables : MutableList[z3.ArithExpr] = MutableList.empty
+    //val allVariables : MutableList[z3.ArithExpr] = MutableList.empty
     val maxValue = ctx.mkInt(puzzle.maxValue)
 
     //row constraints
@@ -69,7 +69,7 @@ object Solver
         rowVars += tempVar
         S.add(ctx.mkLe(tempVar, maxValue))
         S.add(ctx.mkLe(ctx.mkInt(1), tempVar))
-        allVariables += tempVar
+        //allVariables += tempVar
         tempRowConstraint = ctx.mkAdd(tempRowConstraint, tempVar)
       }
 
@@ -85,13 +85,19 @@ object Solver
       var colVars : MutableList[z3.IntExpr] = MutableList.empty
       for(i <- 1 to puzzle.gridSize){
         val tempVar = ctx.mkIntConst("x" + i.toString() + j.toString())
+        colVars += tempVar
         tempColumnConstraint = ctx.mkAdd(tempColumnConstraint, tempVar)
       }
       
+      
+      println(ctx.mkDistinct(colVars:_*))
       S.add(ctx.mkDistinct(colVars:_*))
       S.add(ctx.mkEq(tempColumnConstraint, ctx.mkInt(puzzle.colSums(j-1))))
     }
     println(S.check())
+    if(S.check().toString == "UNSATISFIABLE"){
+      throw new IllegalArgumentException
+    }
     val model = (S.getModel())
 
 
@@ -107,8 +113,7 @@ object Solver
       retPuzzle = retPuzzle :+ tempList
     }
 
-    //println(retPuzzle)
-
+    println(retPuzzle)
     /* Hard-coding a solution just for testing. */
     Puzzle(
         puzzle.gridSize, puzzle.maxValue, // n and m
