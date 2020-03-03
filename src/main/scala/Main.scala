@@ -47,7 +47,7 @@ object Main
     //assert (p1.head.isValid)
 
     //println("Question 2(c)")
-    val p2 = sumsudoku.PuzzleCreatorV2.create(7, 10, 1)
+    val p2 = sumsudoku.PuzzleCreatorV2.create(3,5,5)
     //assert (p2.size == 1)
     //assert (p2.head.isValid)
   }

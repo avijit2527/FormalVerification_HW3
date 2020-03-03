@@ -15,106 +15,63 @@ object PuzzleCreator {
     
     val ctx = new z3.Context()
     val S = ctx.mkSolver()
-    val maximimValue = ctx.mkInt(maxValue)
+    val maximimValue = ctx.mkBV(maxValue, 4)
 
-    var xyEquality : MutableList[z3.BoolExpr] = MutableList.empty
-    var extraVariables : MutableList[z3.Expr] = MutableList.empty
-    var extraVariableNames : MutableList[z3.Symbol] = MutableList.empty
-    var finalExtraClauses : MutableList[z3.BoolExpr] = MutableList.empty
+    var allVariablesX : MutableList[String] = MutableList.empty
+    var row : MutableList[String] = MutableList.empty
+    var col : MutableList[String] = MutableList.empty
+    var allVariablesY : MutableList[String] = MutableList.empty
+    var xConstraints : MutableList[z3.BoolExpr] = MutableList.empty
+    var yConstraints : MutableList[z3.BoolExpr] = MutableList.empty
+
 
     //row constraints
     for(i <- 1 to gridSize){
-      var tempRowConstraint : z3.ArithExpr = ctx.mkInt(0)
-      var rowVars : MutableList[z3.IntExpr] = MutableList.empty
-
-      var yTempRowConstraint : z3.ArithExpr = ctx.mkInt(0)
-      var yRowVars : MutableList[z3.IntExpr] = MutableList.empty
-
-
+      var tempRowX : MutableList[z3.BitVecExpr] = MutableList.empty 
+      var tempRowY : MutableList[z3.BitVecExpr] = MutableList.empty 
+      var tempColX : MutableList[z3.BitVecExpr] = MutableList.empty 
+      var tempColY : MutableList[z3.BitVecExpr] = MutableList.empty 
       for(j <- 1 to gridSize){
-        val xTempVar = ctx.mkIntConst("x" + i.toString() + j.toString())
-        val yTempVar = ctx.mkIntConst("y" + i.toString() + j.toString())
-        xyEquality += ctx.mkNot(ctx.mkEq(xTempVar, yTempVar))
-        extraVariables += yTempVar
-        extraVariableNames += ctx.mkSymbol("y" + i.toString() + j.toString())
-        rowVars += xTempVar
-        yRowVars += yTempVar
-        S.add(ctx.mkLe(xTempVar, maximimValue))
-        S.add(ctx.mkLe(ctx.mkInt(1), xTempVar))
-        println(ctx.mkLe(xTempVar, maximimValue))
-        println(ctx.mkLe(ctx.mkInt(1), xTempVar))
+        val xTempVar = "x" + i.toString() + j.toString()
+        val yTempVar = "y" + i.toString() + j.toString()
+        xConstraints += ctx.mkAnd(ctx.mkBVULE(ctx.mkBV(1,4), ctx.mkBVConst(xTempVar,4)),ctx.mkBVULE(ctx.mkBVConst(xTempVar,4),maximimValue))
+        yConstraints += ctx.mkAnd(ctx.mkBVULE(ctx.mkBV(1,4), ctx.mkBVConst(yTempVar,4)),ctx.mkBVULE(ctx.mkBVConst(yTempVar,4),maximimValue))
 
         
-        //finalExtraClauses += (ctx.mkLe(yTempVar, maximimValue))
-        //finalExtraClauses += (ctx.mkLe(ctx.mkInt(1), yTempVar))
-        //allVariables += xTempVar
-        tempRowConstraint = ctx.mkAdd(tempRowConstraint, xTempVar)
-        yTempRowConstraint = ctx.mkAdd(yTempRowConstraint, yTempVar)
+        tempRowX += ctx.mkBVConst(xTempVar,4)
+        tempRowY += ctx.mkBVConst(yTempVar,4)
+        tempColX += ctx.mkBVConst("x" + j.toString() + i.toString(),4)
+        tempColY += ctx.mkBVConst("y" + j.toString() + i.toString(),4)
+
+
+
+        allVariablesX += xTempVar
+        allVariablesY += yTempVar
       }
+      xConstraints += ctx.mkDistinct(tempRowX:_*)
+      yConstraints += ctx.mkDistinct(tempRowY:_*)
 
+      xConstraints += ctx.mkDistinct(tempColX:_*)
+      yConstraints += ctx.mkDistinct(tempColY:_*)
 
-
-
-      //just for testing the code
-      /*S.add(ctx.mkNot(ctx.mkEq(ctx.mkIntConst("row" + 1.toString), ctx.mkInt(6))))
-      S.add(ctx.mkNot(ctx.mkEq(ctx.mkIntConst("row" + 2.toString), ctx.mkInt(9))))
-      S.add(ctx.mkNot(ctx.mkEq(ctx.mkIntConst("row" + 3.toString), ctx.mkInt(12))))
-      S.add(ctx.mkNot(ctx.mkEq(ctx.mkIntConst("col" + 1.toString), ctx.mkInt(6))))
-      S.add(ctx.mkNot(ctx.mkEq(ctx.mkIntConst("col" + 2.toString), ctx.mkInt(9))))
-      S.add(ctx.mkNot(ctx.mkEq(ctx.mkIntConst("col" + 3.toString), ctx.mkInt(12))))*/
-
-
-
-      S.add(ctx.mkDistinct(rowVars:_*))
-      //S.add(ctx.mkDistinct(yRowVars:_*))
-      S.add(ctx.mkEq(tempRowConstraint, ctx.mkIntConst("row" + i.toString)))
-      println(ctx.mkDistinct(rowVars:_*))
-      println(ctx.mkEq(tempRowConstraint, ctx.mkIntConst("row" + i.toString)))
-
-
-      finalExtraClauses += ctx.mkNot(ctx.mkEq(yTempRowConstraint, ctx.mkIntConst("row" + i.toString)))
+      //xConstraints += tempRowX
+      row += "row" + i.toString
+      col += "col" + i.toString
     }
 
-    //column constraints
-    for(j <- 1 to gridSize){
-      var tempColumnConstraint : z3.ArithExpr = ctx.mkInt(0)
-      var colVars : MutableList[z3.IntExpr] = MutableList.empty
-      
-      var yTempColumnConstraint : z3.ArithExpr = ctx.mkInt(0)
-      var yColVars : MutableList[z3.IntExpr] = MutableList.empty
-      for(i <- 1 to gridSize){
-        val xTempVar = ctx.mkIntConst("x" + i.toString() + j.toString())
-        colVars += xTempVar
-        
-        val yTempVar = ctx.mkIntConst("y" + i.toString() + j.toString())
-        yColVars += yTempVar
+    
 
-        tempColumnConstraint = ctx.mkAdd(tempColumnConstraint, xTempVar)
-        yTempColumnConstraint = ctx.mkAdd(yTempColumnConstraint, yTempVar)
-      }
 
-      
-      
-      S.add(ctx.mkDistinct(colVars:_*))
-      S.add(ctx.mkEq(tempColumnConstraint, ctx.mkIntConst("col" + j.toString)))
-      println(ctx.mkDistinct(colVars:_*))
-      println(ctx.mkEq(tempColumnConstraint, ctx.mkIntConst("col" + j.toString)))
-      
-      //S.add(ctx.mkDistinct(yColVars:_*))
-      finalExtraClauses += ctx.mkNot(ctx.mkEq(yTempColumnConstraint, ctx.mkIntConst("col" + j.toString)))
-    }
-    S.add(ctx.mkOr(xyEquality:_*))
-    println(ctx.mkOr(xyEquality:_*))
-    //println(ctx.mkNot(ctx.mkAnd(finalExtraClauses:_*)))
-    var extraVarSort : MutableList[z3.Sort] = MutableList.empty
-    for(extraVariable <- extraVariables){
-      extraVarSort += (extraVariable.getSort)
-    }
-    val pattern : Array[z3.Pattern] = Array.empty
-    S.add(ctx.mkForall(extraVarSort.toArray,extraVariableNames.toArray,(ctx.mkOr(finalExtraClauses:_*)),1,pattern,null,null,null))
-    println(ctx.mkForall(extraVarSort.toArray,extraVariableNames.toArray,(ctx.mkOr(finalExtraClauses:_*)),1,pattern,null,null,null))
-    println(S.check())
-    println(S.getModel())
+    var xBV = allVariablesX.map(x => (x -> ctx.mkBVConst(x,4))).toMap
+    var yBV = allVariablesY.map(x => (x -> ctx.mkBVConst(x,4))).toMap
+    var rowBV = row.map(x => (x -> ctx.mkBVConst(x,4))).toMap
+    var colBV = col.map(x => (x -> ctx.mkBVConst(x,4))).toMap
+
+    println(xConstraints)
+
+
+
+
 
 
     puzzleList 

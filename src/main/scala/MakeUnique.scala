@@ -20,12 +20,13 @@ object PuzzleCreatorV2 {
       andArgs += (ctx.mkEq(unsatVar,m.eval(unsatVar,true).asInstanceOf[z3.IntNum]))
     }
     S.add((ctx.mkAnd(andArgs:_*)))
-    println((ctx.mkAnd(andArgs:_*)))
+    //println((ctx.mkAnd(andArgs:_*)))
     var isSAT = true
     if(S.check().toString == "UNSATISFIABLE"){
       isSAT = false
     }else{
-      //println(S.getModel())
+      println("______________")
+      println(S.getModel())
       isSAT = true
     }
     isSAT
@@ -116,13 +117,17 @@ object PuzzleCreatorV2 {
       rowColVars += ctx.mkIntConst("col" + j.toString)
     }
 
+    var blockingClauses :MutableList[MutableList[z3.BoolExpr]] = MutableList.empty 
+    
+    var isSAT = S.check().toString
+    var model = (S.getModel())
+
     for(idx <- 0 until numPuzzles){
       //println(S.check())
-      if(S.check().toString == "UNSATISFIABLE"){
+      if(isSAT == "UNSATISFIABLE"){
         throw new IllegalArgumentException
       }
       //println(S.getModel())
-      var model = (S.getModel())
       var rowSums : MutableList[Int] = MutableList.empty 
       var colSums : MutableList[Int] = MutableList.empty 
       
@@ -165,9 +170,18 @@ object PuzzleCreatorV2 {
         blockingClause += ctx.mkEq(x,model.eval(x,true))
       }
 
+      blockingClauses += blockingClause
+      S.push()
+      for(cl <- blockingClauses){
+        S.add(ctx.mkNot(ctx.mkAnd(cl:_*)))
+      }
+      isSAT = S.check().toString
+      model = (S.getModel())
+      S.pop()
+
       S.add(ctx.mkNot(ctx.mkAnd(blockingClause:_*)))
-      S.add(ctx.mkNot(ctx.mkAnd(blockingClauseRowColVars:_*)))
-      println(ctx.mkNot(ctx.mkAnd(blockingClause:_*)))
+      //S.add(ctx.mkNot(ctx.mkAnd(blockingClauseRowColVars:_*)))
+      //println(ctx.mkNot(ctx.mkAnd(blockingClause:_*)))
 
 
       puzzleList += Puzzle(
