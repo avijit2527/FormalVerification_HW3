@@ -60,6 +60,12 @@ object Solver
     //val allVariables : MutableList[z3.ArithExpr] = MutableList.empty
     val maxValue = ctx.mkInt(puzzle.maxValue)
 
+    //S.add(ctx.mkEq(ctx.mkIntConst("x" + 3.toString() + 3.toString()),ctx.mkInt(3)))
+    //S.add(ctx.mkNot(ctx.mkEq(ctx.mkIntConst("x" + 3.toString() + 2.toString()),ctx.mkInt(5))))
+
+
+
+
     //row constraints
     for(i <- 1 to puzzle.gridSize){
       var tempRowConstraint : z3.ArithExpr = ctx.mkInt(0)

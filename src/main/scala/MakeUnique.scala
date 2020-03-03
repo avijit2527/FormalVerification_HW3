@@ -21,6 +21,7 @@ object PuzzleCreatorV2 {
     }
     S.add((ctx.mkAnd(andArgs:_*)))
     var isSAT = true
+    //println(S.check().toString)
     if(S.check().toString == "UNSATISFIABLE"){
       isSAT = false
     }else{
@@ -43,6 +44,8 @@ object PuzzleCreatorV2 {
     }
     S.add(ctx.mkNot(ctx.mkAnd(andArgs:_*)))
     S.add((ctx.mkAnd(rowColAndArgs:_*)))
+    //println(ctx.mkNot(ctx.mkAnd(andArgs:_*)))
+    //println((ctx.mkAnd(rowColAndArgs:_*)))
     var unsatVariables = allVariables.tails
     var isSAT = false
     var finalVariables : MutableList[z3.IntExpr] =  MutableList.empty
@@ -130,6 +133,8 @@ object PuzzleCreatorV2 {
       var puzzleVars = createPuzzle(S,ctx,allVariables,rowColVars,model)
       S.pop()
 
+      //println(puzzleVars)
+
 
       var blockingClause : MutableList[z3.BoolExpr] = MutableList.empty  
 
@@ -137,7 +142,7 @@ object PuzzleCreatorV2 {
       for(i <- 1 to gridSize){
         var tempList : List[Int] = List.empty 
         for(j <- 1 to gridSize){
-          blockingClause += ctx.mkEq(ctx.mkIntConst("x" + i.toString() + j.toString()),model.eval(ctx.mkIntConst("x" + i.toString() + j.toString()),true))
+          //blockingClause += ctx.mkEq(ctx.mkIntConst("x" + i.toString() + j.toString()),model.eval(ctx.mkIntConst("x" + i.toString() + j.toString()),true))
           if(puzzleVars.contains(ctx.mkIntConst("x" + i.toString() + j.toString()))){
             tempList = tempList :+ model.eval(ctx.mkIntConst("x" + i.toString() + j.toString()),true).asInstanceOf[z3.IntNum].getInt
 
@@ -146,6 +151,10 @@ object PuzzleCreatorV2 {
           }
         }
         retPuzzle = retPuzzle :+ tempList
+      }
+      
+      for(x <- rowColVars){
+        blockingClause += ctx.mkEq(x,model.eval(x,true))
       }
 
       S.add(ctx.mkNot(ctx.mkAnd(blockingClause:_*)))

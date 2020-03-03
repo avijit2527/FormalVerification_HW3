@@ -41,6 +41,8 @@ object PuzzleCreator {
         yRowVars += yTempVar
         S.add(ctx.mkLe(xTempVar, maximimValue))
         S.add(ctx.mkLe(ctx.mkInt(1), xTempVar))
+        println(ctx.mkLe(xTempVar, maximimValue))
+        println(ctx.mkLe(ctx.mkInt(1), xTempVar))
 
         
         //finalExtraClauses += (ctx.mkLe(yTempVar, maximimValue))
@@ -66,7 +68,11 @@ object PuzzleCreator {
       S.add(ctx.mkDistinct(rowVars:_*))
       //S.add(ctx.mkDistinct(yRowVars:_*))
       S.add(ctx.mkEq(tempRowConstraint, ctx.mkIntConst("row" + i.toString)))
-      finalExtraClauses += (ctx.mkEq(yTempRowConstraint, ctx.mkIntConst("row" + i.toString)))
+      println(ctx.mkDistinct(rowVars:_*))
+      println(ctx.mkEq(tempRowConstraint, ctx.mkIntConst("row" + i.toString)))
+
+
+      finalExtraClauses += ctx.mkNot(ctx.mkEq(yTempRowConstraint, ctx.mkIntConst("row" + i.toString)))
     }
 
     //column constraints
@@ -91,9 +97,11 @@ object PuzzleCreator {
       
       S.add(ctx.mkDistinct(colVars:_*))
       S.add(ctx.mkEq(tempColumnConstraint, ctx.mkIntConst("col" + j.toString)))
+      println(ctx.mkDistinct(colVars:_*))
+      println(ctx.mkEq(tempColumnConstraint, ctx.mkIntConst("col" + j.toString)))
       
       //S.add(ctx.mkDistinct(yColVars:_*))
-      finalExtraClauses += (ctx.mkEq(yTempColumnConstraint, ctx.mkIntConst("col" + j.toString)))
+      finalExtraClauses += ctx.mkNot(ctx.mkEq(yTempColumnConstraint, ctx.mkIntConst("col" + j.toString)))
     }
     S.add(ctx.mkOr(xyEquality:_*))
     println(ctx.mkOr(xyEquality:_*))
@@ -103,8 +111,8 @@ object PuzzleCreator {
       extraVarSort += (extraVariable.getSort)
     }
     val pattern : Array[z3.Pattern] = Array.empty
-    //S.add(ctx.mkForall(extraVarSort.toArray,extraVariableNames.toArray,ctx.mkNot(ctx.mkAnd(finalExtraClauses:_*)),1,pattern,null,null,null))
-    println(ctx.mkForall(extraVarSort.toArray,extraVariableNames.toArray,ctx.mkNot(ctx.mkAnd(finalExtraClauses:_*)),1,pattern,null,null,null))
+    S.add(ctx.mkForall(extraVarSort.toArray,extraVariableNames.toArray,(ctx.mkOr(finalExtraClauses:_*)),1,pattern,null,null,null))
+    println(ctx.mkForall(extraVarSort.toArray,extraVariableNames.toArray,(ctx.mkOr(finalExtraClauses:_*)),1,pattern,null,null,null))
     println(S.check())
     println(S.getModel())
 

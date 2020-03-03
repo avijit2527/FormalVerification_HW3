@@ -26,10 +26,10 @@ object Main
 
     println("Question 2 test(s)")
 
-    /*val puzzle = sumsudoku.Puzzle(
+    val puzzle = sumsudoku.Puzzle(
       3, 5, // n and m
-      List(6, 6, 12), // row sum
-      List(9, 6, 9),  // col sum
+      List(7, 8, 10), // row sum
+      List(7, 9, 9),  // col sum
       List( // empty grid
         List(0, 0, 0),
         List(0, 0, 0),
@@ -39,15 +39,15 @@ object Main
     assert (solved.gridSize == puzzle.gridSize &&
       solved.maxValue == puzzle.maxValue &&
       solved.rowSums == puzzle.rowSums &&
-      solved.colSums == puzzle.colSums)*/
+      solved.colSums == puzzle.colSums)
 
-    //println("Question 2(b)")
+    println("Question 2(b)")
     //val p1 = sumsudoku.PuzzleCreator.create(3, 5, 1)
     //assert (p1.size == 1)
     //assert (p1.head.isValid)
 
-    println("Question 2(c)")
-    val p2 = sumsudoku.PuzzleCreatorV2.create(100, 105, 25)
+    //println("Question 2(c)")
+    //val p2 = sumsudoku.PuzzleCreatorV2.create(3, 5, 5)
     //assert (p2.size == 1)
     //assert (p2.head.isValid)
   }
