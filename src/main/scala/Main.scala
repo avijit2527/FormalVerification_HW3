@@ -42,12 +42,12 @@ object Main
       solved.colSums == puzzle.colSums)*/
 
     println("Question 2(b)")
-    //val p1 = sumsudoku.PuzzleCreator.create(3, 5, 1)
+    val p1 = sumsudoku.PuzzleCreator.create(3, 5, 3)
     //assert (p1.size == 1)
     //assert (p1.head.isValid)
 
     //println("Question 2(c)")
-    val p2 = sumsudoku.PuzzleCreatorV2.create(3,5,5)
+    //val p2 = sumsudoku.PuzzleCreatorV2.create(2,5,5)
     //assert (p2.size == 1)
     //assert (p2.head.isValid)
   }

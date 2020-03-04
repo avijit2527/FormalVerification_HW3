@@ -54,9 +54,15 @@ object PuzzleCreator {
       xConstraints += ctx.mkDistinct(tempColX:_*)
       yConstraints += ctx.mkDistinct(tempColY:_*)
 
-      //xConstraints += tempRowX
+      //println(tempRowX.reduce((a,b) => ctx.mkBVAdd(a,b)))
+
+
       row += "row" + i.toString
+      xConstraints += ctx.mkEq(tempRowX.reduce((a,b) => ctx.mkBVAdd(a,b)),ctx.mkBVConst("row" + i.toString,4))
+      yConstraints += ctx.mkEq(tempRowY.reduce((a,b) => ctx.mkBVAdd(a,b)),ctx.mkBVConst("row" + i.toString,4))
       col += "col" + i.toString
+      xConstraints += ctx.mkEq(tempColX.reduce((a,b) => ctx.mkBVAdd(a,b)),ctx.mkBVConst("col" + i.toString,4))
+      yConstraints += ctx.mkEq(tempColY.reduce((a,b) => ctx.mkBVAdd(a,b)),ctx.mkBVConst("col" + i.toString,4))
     }
 
     
@@ -67,12 +73,45 @@ object PuzzleCreator {
     var rowBV = row.map(x => (x -> ctx.mkBVConst(x,4))).toMap
     var colBV = col.map(x => (x -> ctx.mkBVConst(x,4))).toMap
 
-    println(xConstraints)
+    //println(xConstraints)
 
+    for(numOfSol <- 0 until numPuzzles){
+      var p_x = ctx.mkAnd(xConstraints:_*)
+      var p_y = ctx.mkAnd(yConstraints:_*)
+      var equalityConstraint :MutableList[z3.BoolExpr] = MutableList.empty 
+      for((a,b) <- (allVariablesX zip allVariablesY)){
+        equalityConstraint += ctx.mkEq(xBV(a),yBV(b))
+      }
+      var xyEquals = ctx.mkAnd(equalityConstraint:_*)
+      //println(equalityConstraint.toArray)
 
+      var impliedExpr = ctx.mkImplies(p_y, xyEquals)
+      //println(xBV.values.toArray)
 
+      var forAll = ctx.mkForall(yBV.values.toArray,impliedExpr,1, Array.empty[z3.Pattern], null, null, null)
+      var exists = ctx.mkExists(xBV.values.toArray, ctx.mkAnd(forAll,p_x), 1, Array.empty[z3.Pattern], null, null, null)
+      S.add(exists)
+      //println(exists)
+      if(S.check().toString == "UNSATISFIABLE"){
+        throw new IllegalArgumentException
+      }else{
+        var model = (S.getModel)
+        var rowSum : List[Int] = List.empty 
+        var colSum : List[Int] = List.empty 
+        var body = List(List(0,0,0),List(0,0,0),List(0,0,0))
 
+        for(i <- row){
+          rowSum = rowSum :+ model.eval(rowBV(i),true).asInstanceOf[z3.BitVecNum].getInt
+        }
+        for(i <- col){
+          colSum = colSum :+ model.eval(colBV(i),true).asInstanceOf[z3.BitVecNum].getInt
+        }
+        puzzleList = puzzleList :+ Puzzle(gridSize,maxValue,rowSum,colSum,body)
+      
+      }
 
+    }
+    //println(puzzleList)
 
     puzzleList 
   }
