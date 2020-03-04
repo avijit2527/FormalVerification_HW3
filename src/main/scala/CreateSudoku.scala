@@ -95,10 +95,10 @@ object PuzzleCreator {
         var body = List(List(0,0,0),List(0,0,0),List(0,0,0))
 
         for(i <- row){
-          rowSum = rowSum :+ model.eval(rowBV(i),true).asInstanceOf[z3.BitVecNum].getInt
+          rowSum += model.eval(rowBV(i),true).asInstanceOf[z3.BitVecNum].getInt
         }
         for(i <- col){
-          colSum = colSum :+ model.eval(colBV(i),true).asInstanceOf[z3.BitVecNum].getInt
+          colSum += model.eval(colBV(i),true).asInstanceOf[z3.BitVecNum].getInt
         }
         puzzleList += Puzzle(gridSize,maxValue,rowSum.toList,colSum.toList,body)
       
