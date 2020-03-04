@@ -56,12 +56,8 @@ object Solver
   def solve(puzzle : Puzzle) : Puzzle = {
     val ctx = new z3.Context()
     val S = ctx.mkSolver()
-    //println(puzzle.gridSize)
-    //val allVariables : MutableList[z3.ArithExpr] = MutableList.empty
     val maxValue = ctx.mkInt(puzzle.maxValue)
 
-    //S.add(ctx.mkEq(ctx.mkIntConst("x" + 3.toString() + 3.toString()),ctx.mkInt(3)))
-    //S.add(ctx.mkNot(ctx.mkEq(ctx.mkIntConst("x" + 3.toString() + 2.toString()),ctx.mkInt(5))))
 
 
 
@@ -70,23 +66,30 @@ object Solver
     for(i <- 1 to puzzle.gridSize){
       var tempRowConstraint : z3.ArithExpr = ctx.mkInt(0)
       var rowVars : MutableList[z3.IntExpr] = MutableList.empty
+      var tempColumnConstraint : z3.ArithExpr = ctx.mkInt(0)
+      var colVars : MutableList[z3.IntExpr] = MutableList.empty
       for(j <- 1 to puzzle.gridSize){
-        val tempVar = ctx.mkIntConst("x" + i.toString() + j.toString())
-        rowVars += tempVar
-        S.add(ctx.mkLe(tempVar, maxValue))
-        S.add(ctx.mkLe(ctx.mkInt(1), tempVar))
-        //allVariables += tempVar
-        tempRowConstraint = ctx.mkAdd(tempRowConstraint, tempVar)
+        val tempVar1 = ctx.mkIntConst("x" + i.toString() + j.toString())
+        rowVars += tempVar1
+        S.add(ctx.mkLe(tempVar1, maxValue))
+        S.add(ctx.mkLe(ctx.mkInt(1), tempVar1))
+        tempRowConstraint = ctx.mkAdd(tempRowConstraint, tempVar1)
+
+        
+        val tempVar2 = ctx.mkIntConst("x" + j.toString() + i.toString())
+        colVars += tempVar2
+        tempColumnConstraint = ctx.mkAdd(tempColumnConstraint, tempVar2)
       }
 
       S.add(ctx.mkDistinct(rowVars:_*))
-
-
       S.add(ctx.mkEq(tempRowConstraint, ctx.mkInt(puzzle.rowSums(i-1))))
+
+      S.add(ctx.mkDistinct(colVars:_*))
+      S.add(ctx.mkEq(tempColumnConstraint, ctx.mkInt(puzzle.colSums(i-1))))
     }
 
     //column constraints
-    for(j <- 1 to puzzle.gridSize){
+    /*for(j <- 1 to puzzle.gridSize){
       var tempColumnConstraint : z3.ArithExpr = ctx.mkInt(0)
       var colVars : MutableList[z3.IntExpr] = MutableList.empty
       for(i <- 1 to puzzle.gridSize){
@@ -99,7 +102,7 @@ object Solver
       println(ctx.mkDistinct(colVars:_*))
       S.add(ctx.mkDistinct(colVars:_*))
       S.add(ctx.mkEq(tempColumnConstraint, ctx.mkInt(puzzle.colSums(j-1))))
-    }
+    }*/
     println(S.check())
     if(S.check().toString == "UNSATISFIABLE"){
       throw new IllegalArgumentException
@@ -119,7 +122,6 @@ object Solver
       retPuzzle = retPuzzle :+ tempList
     }
 
-    println(retPuzzle)
     /* Hard-coding a solution just for testing. */
     Puzzle(
         puzzle.gridSize, puzzle.maxValue, // n and m

@@ -26,7 +26,7 @@ object Main
 
     println("Question 2 test(s)")
 
-    /*val puzzle = sumsudoku.Puzzle(
+    val puzzle = sumsudoku.Puzzle(
       3, 5, // n and m
       List(6, 9, 12), // row sum
       List(6, 9, 12),  // col sum
@@ -39,15 +39,15 @@ object Main
     assert (solved.gridSize == puzzle.gridSize &&
       solved.maxValue == puzzle.maxValue &&
       solved.rowSums == puzzle.rowSums &&
-      solved.colSums == puzzle.colSums)*/
+      solved.colSums == puzzle.colSums)
 
     println("Question 2(b)")
-    //val p1 = sumsudoku.PuzzleCreator.create(3, 5, 3)
+    //val p1 = sumsudoku.PuzzleCreator.create(3, 5, 7)
     //assert (p1.size == 1)
     //assert (p1.head.isValid)
 
     //println("Question 2(c)")
-    val p2 = sumsudoku.PuzzleCreatorV2.create(2,5,5)
+    //val p2 = sumsudoku.PuzzleCreatorV2.create(2,5,5)
     //assert (p2.size == 1)
     //assert (p2.head.isValid)
   }

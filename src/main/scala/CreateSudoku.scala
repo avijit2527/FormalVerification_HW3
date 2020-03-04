@@ -25,7 +25,6 @@ object PuzzleCreator {
     var yConstraints : MutableList[z3.BoolExpr] = MutableList.empty
 
 
-    //row constraints
     for(i <- 1 to gridSize){
       var tempRowX : MutableList[z3.BitVecExpr] = MutableList.empty 
       var tempRowY : MutableList[z3.BitVecExpr] = MutableList.empty 
@@ -54,7 +53,6 @@ object PuzzleCreator {
       xConstraints += ctx.mkDistinct(tempColX:_*)
       yConstraints += ctx.mkDistinct(tempColY:_*)
 
-      //println(tempRowX.reduce((a,b) => ctx.mkBVAdd(a,b)))
 
 
       row += "row" + i.toString
@@ -73,7 +71,6 @@ object PuzzleCreator {
     var rowBV = row.map(x => (x -> ctx.mkBVConst(x,4))).toMap
     var colBV = col.map(x => (x -> ctx.mkBVConst(x,4))).toMap
 
-    //println(xConstraints)
 
     for(numOfSol <- 0 until numPuzzles){
       var p_x = ctx.mkAnd(xConstraints:_*)
@@ -83,15 +80,12 @@ object PuzzleCreator {
         equalityConstraint += ctx.mkEq(xBV(a),yBV(b))
       }
       var xyEquals = ctx.mkAnd(equalityConstraint:_*)
-      //println(equalityConstraint.toArray)
 
       var impliedExpr = ctx.mkImplies(p_y, xyEquals)
-      //println(xBV.values.toArray)
 
       var forAll = ctx.mkForall(yBV.values.toArray,impliedExpr,1, Array.empty[z3.Pattern], null, null, null)
       var exists = ctx.mkExists(xBV.values.toArray, ctx.mkAnd(forAll,p_x), 1, Array.empty[z3.Pattern], null, null, null)
       S.add(exists)
-      //println(exists)
       if(S.check().toString == "UNSATISFIABLE"){
         throw new IllegalArgumentException
       }else{
@@ -111,7 +105,6 @@ object PuzzleCreator {
       }
 
     }
-    //println(puzzleList)
 
     puzzleList 
   }
