@@ -11,7 +11,7 @@ object PuzzleCreator {
    *  possible to create a puzzle for the provided parameters.
    */
   def create(gridSize : Int, maxValue : Int, numPuzzles : Int) : List[Puzzle] = {
-    var puzzleList : List[Puzzle] = List.empty
+    var puzzleList : MutableList[Puzzle] = MutableList.empty
     
     val ctx = new z3.Context()
     val S = ctx.mkSolver()
@@ -100,12 +100,12 @@ object PuzzleCreator {
         for(i <- col){
           colSum = colSum :+ model.eval(colBV(i),true).asInstanceOf[z3.BitVecNum].getInt
         }
-        puzzleList = puzzleList :+ Puzzle(gridSize,maxValue,rowSum.toList,colSum.toList,body)
+        puzzleList += Puzzle(gridSize,maxValue,rowSum.toList,colSum.toList,body)
       
       }
 
     }
 
-    puzzleList 
+    puzzleList.toList
   }
 }
