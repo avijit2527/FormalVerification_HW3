@@ -90,8 +90,8 @@ object PuzzleCreator {
         throw new IllegalArgumentException
       }else{
         var model = (S.getModel)
-        var rowSum : List[Int] = List.empty 
-        var colSum : List[Int] = List.empty 
+        var rowSum : MutableList[Int] = MutableList.empty 
+        var colSum : MutableList[Int] = MutableList.empty 
         var body = List(List(0,0,0),List(0,0,0),List(0,0,0))
 
         for(i <- row){
@@ -100,7 +100,7 @@ object PuzzleCreator {
         for(i <- col){
           colSum = colSum :+ model.eval(colBV(i),true).asInstanceOf[z3.BitVecNum].getInt
         }
-        puzzleList = puzzleList :+ Puzzle(gridSize,maxValue,rowSum,colSum,body)
+        puzzleList = puzzleList :+ Puzzle(gridSize,maxValue,rowSum.toList,colSum.toList,body)
       
       }
 

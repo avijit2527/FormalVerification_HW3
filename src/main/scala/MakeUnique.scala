@@ -14,13 +14,11 @@ object PuzzleCreatorV2 {
    */
 
   def checkForSAT(S : z3.Solver, ctx : z3.Context, unsatVariables : MutableList[z3.IntExpr], m: z3.Model) : Boolean = {
-    //S.add((ctx.mkAnd(unsatVariables:_*)))
     var andArgs : MutableList[z3.BoolExpr] =  MutableList.empty
     for(unsatVar <- unsatVariables){
       andArgs += (ctx.mkEq(unsatVar,m.eval(unsatVar,true).asInstanceOf[z3.IntNum]))
     }
     S.add((ctx.mkAnd(andArgs:_*)))
-    //println((ctx.mkAnd(andArgs:_*)))
     var isSAT = true
     if(S.check().toString == "UNSATISFIABLE"){
       isSAT = false
@@ -44,14 +42,11 @@ object PuzzleCreatorV2 {
     }
     S.add(ctx.mkNot(ctx.mkAnd(andArgs:_*)))
     S.add((ctx.mkAnd(rowColAndArgs:_*)))
-    //println(ctx.mkNot(ctx.mkAnd(andArgs:_*)))
-    //println((ctx.mkAnd(rowColAndArgs:_*)))
     var unsatVariables = allVariables.tails
     var isSAT = false
     var finalVariables : MutableList[z3.IntExpr] =  MutableList.empty
     breakable{
       for(unsatVariable <- unsatVariables){
-        //println(unsatVariable)
         S.push()
         isSAT = checkForSAT(S, ctx, unsatVariable, m)
         S.pop()
@@ -62,8 +57,6 @@ object PuzzleCreatorV2 {
       }
     }
     
-    //println(S.check())
-    //println(finalVariables)
     finalVariables
   }
   
@@ -78,7 +71,6 @@ object PuzzleCreatorV2 {
     val allVariables : MutableList[z3.IntExpr] =  MutableList.empty
     val rowColVars : MutableList[z3.IntExpr] =  MutableList.empty
     
-    //row constraints
     for(i <- 1 to gridSize){
       var tempRowConstraint : z3.ArithExpr = ctx.mkInt(0)
       var rowVars : MutableList[z3.IntExpr] = MutableList.empty
@@ -98,7 +90,6 @@ object PuzzleCreatorV2 {
       rowColVars += ctx.mkIntConst("row" + i.toString)
     }
 
-        //column constraints
     for(j <- 1 to gridSize){
       var tempColumnConstraint : z3.ArithExpr = ctx.mkInt(0)
       var colVars : MutableList[z3.IntExpr] = MutableList.empty
@@ -109,7 +100,6 @@ object PuzzleCreatorV2 {
       }
       
       
-      //println(ctx.mkDistinct(colVars:_*))
       S.add(ctx.mkDistinct(colVars:_*))
       S.add(ctx.mkEq(tempColumnConstraint, ctx.mkIntConst("col" + j.toString)))
       rowColVars += ctx.mkIntConst("col" + j.toString)
@@ -121,11 +111,9 @@ object PuzzleCreatorV2 {
     var model = (S.getModel())
 
     for(idx <- 0 until numPuzzles){
-      //println(S.check())
       if(isSAT == "UNSATISFIABLE"){
         throw new IllegalArgumentException
       }
-      //println(S.getModel())
       var rowSums : MutableList[Int] = MutableList.empty 
       var colSums : MutableList[Int] = MutableList.empty 
       
@@ -139,7 +127,6 @@ object PuzzleCreatorV2 {
       var puzzleVars = createPuzzle(S,ctx,allVariables,rowColVars,model)
       S.pop()
 
-      //println(puzzleVars)
 
 
       var blockingClause : MutableList[z3.BoolExpr] = MutableList.empty  
@@ -148,7 +135,6 @@ object PuzzleCreatorV2 {
       for(i <- 1 to gridSize){
         var tempList : List[Int] = List.empty 
         for(j <- 1 to gridSize){
-          //blockingClause += ctx.mkEq(ctx.mkIntConst("x" + i.toString() + j.toString()),model.eval(ctx.mkIntConst("x" + i.toString() + j.toString()),true))
           if(puzzleVars.contains(ctx.mkIntConst("x" + i.toString() + j.toString()))){
             tempList = tempList :+ model.eval(ctx.mkIntConst("x" + i.toString() + j.toString()),true).asInstanceOf[z3.IntNum].getInt
 
@@ -177,9 +163,6 @@ object PuzzleCreatorV2 {
       model = (S.getModel())
       S.pop()
 
-      //S.add(ctx.mkNot(ctx.mkAnd(blockingClause:_*)))
-      //S.add(ctx.mkNot(ctx.mkAnd(blockingClauseRowColVars:_*)))
-      //println(ctx.mkNot(ctx.mkAnd(blockingClause:_*)))
 
 
       puzzleList += Puzzle(
@@ -191,9 +174,7 @@ object PuzzleCreatorV2 {
 
     }
     
-    //for(x <- puzzleList){
-    //  println(x)
-    //}
+ 
     puzzleList.toList
   }
 

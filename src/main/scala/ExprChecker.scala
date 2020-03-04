@@ -22,10 +22,8 @@ object ExprChecker {
     e match{
     case BV_VAR(name) => {
       variableList += BV_VAR(name)
-      //println(name)
       ctx.mkBVConst(name,noOfBits)
     }
-    //case BV_EQ(lexpr, rexpr) => ctx.mkEq(convertToZ3Eq(lexpr,ctx),convertToZ3Eq(rexpr,ctx))
     case BV_NUM(value) => ctx.mkInt2BV(noOfBits, ctx.mkInt(value))
     case BV_NOT(expr) => ctx.mkBVNot(convertToZ3Eq(expr, ctx))
     case BV_RSHIFT(lexpr, rexpr) => ctx.mkBVASHR(convertToZ3Eq(lexpr,ctx), convertToZ3Eq(rexpr, ctx))
@@ -37,7 +35,6 @@ object ExprChecker {
     case BV_SUB(lexpr, rexpr) => ctx.mkBVSub(convertToZ3Eq(lexpr,ctx), convertToZ3Eq(rexpr, ctx))
     case BV_MUL(lexpr, rexpr) => ctx.mkBVMul(convertToZ3Eq(lexpr,ctx), convertToZ3Eq(rexpr, ctx))
     case BV_DIV(lexpr, rexpr) => ctx.mkBVSDiv(convertToZ3Eq(lexpr,ctx), convertToZ3Eq(rexpr, ctx))
-    //case _ =>   ctx.mkBVConst("name",32)
 
     }
   }
@@ -54,14 +51,11 @@ object ExprChecker {
     var resultMap :  Map[BV_VAR, Int]  = Map.empty
 
     val finalExpr = ctx.mkNot(ctx.mkEq(expr1Converted,expr2Converted))
-    println(finalExpr)
     S.add(finalExpr)
-    println(S.check())
     if(S.check().toString == "UNSATISFIABLE"){
       return (true,Map.empty[BV_VAR, Int])
     }else{
       val model = S.getModel()
-      println(variableList)
       for(variable <- variableList){
         variable match{
           case BV_VAR(name) => resultMap += (variable -> (model.eval(ctx.mkBVConst(name,noOfBits),true).asInstanceOf[z3.BitVecNum].getLong().toInt))
