@@ -25,8 +25,6 @@ object PuzzleCreatorV2 {
     if(S.check().toString == "UNSATISFIABLE"){
       isSAT = false
     }else{
-      println("______________")
-      println(S.getModel())
       isSAT = true
     }
     isSAT
@@ -179,7 +177,7 @@ object PuzzleCreatorV2 {
       model = (S.getModel())
       S.pop()
 
-      S.add(ctx.mkNot(ctx.mkAnd(blockingClause:_*)))
+      //S.add(ctx.mkNot(ctx.mkAnd(blockingClause:_*)))
       //S.add(ctx.mkNot(ctx.mkAnd(blockingClauseRowColVars:_*)))
       //println(ctx.mkNot(ctx.mkAnd(blockingClause:_*)))
 
@@ -193,9 +191,9 @@ object PuzzleCreatorV2 {
 
     }
     
-    for(x <- puzzleList){
-      println(x)
-    }
+    //for(x <- puzzleList){
+    //  println(x)
+    //}
     puzzleList.toList
   }
 
