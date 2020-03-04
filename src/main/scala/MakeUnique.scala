@@ -155,13 +155,7 @@ object PuzzleCreatorV2 {
       }
 
       blockingClauses += blockingClause
-      S.push()
-      for(cl <- blockingClauses){
-        S.add(ctx.mkNot(ctx.mkAnd(cl:_*)))
-      }
-      isSAT = S.check().toString
-      model = (S.getModel())
-      S.pop()
+      
 
 
 
