@@ -34,7 +34,7 @@ object ExprChecker {
     case BV_ADD(lexpr, rexpr) => ctx.mkBVAdd(convertToZ3Eq(lexpr,ctx), convertToZ3Eq(rexpr, ctx))
     case BV_SUB(lexpr, rexpr) => ctx.mkBVSub(convertToZ3Eq(lexpr,ctx), convertToZ3Eq(rexpr, ctx))
     case BV_MUL(lexpr, rexpr) => ctx.mkBVMul(convertToZ3Eq(lexpr,ctx), convertToZ3Eq(rexpr, ctx))
-    case BV_DIV(lexpr, rexpr) => ctx.mkBVSDiv(convertToZ3Eq(lexpr,ctx), convertToZ3Eq(rexpr, ctx))
+    case BV_DIV(lexpr, rexpr) => ctx.mkBVUDiv(convertToZ3Eq(lexpr,ctx), convertToZ3Eq(rexpr, ctx))
 
     }
   }
