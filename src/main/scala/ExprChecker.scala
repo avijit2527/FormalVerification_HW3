@@ -26,7 +26,7 @@ object ExprChecker {
     }
     case BV_NUM(value) => ctx.mkInt2BV(noOfBits, ctx.mkInt(value))
     case BV_NOT(expr) => ctx.mkBVNot(convertToZ3Eq(expr, ctx))
-    case BV_RSHIFT(lexpr, rexpr) => ctx.mkBVASHR(convertToZ3Eq(lexpr,ctx), convertToZ3Eq(rexpr, ctx))
+    case BV_RSHIFT(lexpr, rexpr) => ctx.mkBVLSHR(convertToZ3Eq(lexpr,ctx), convertToZ3Eq(rexpr, ctx))
     case BV_LSHIFT(lexpr, rexpr) => ctx.mkBVSHL(convertToZ3Eq(lexpr,ctx), convertToZ3Eq(rexpr, ctx))
     case BV_AND(lexpr, rexpr) => ctx.mkBVAND(convertToZ3Eq(lexpr,ctx), convertToZ3Eq(rexpr, ctx))
     case BV_OR(lexpr, rexpr) => ctx.mkBVOR(convertToZ3Eq(lexpr,ctx), convertToZ3Eq(rexpr, ctx))
